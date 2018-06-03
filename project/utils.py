@@ -2,6 +2,9 @@ import nltk
 import pickle
 import re
 import numpy as np
+import pandas as pd
+import csv
+from collections import defaultdict
 
 nltk.download('stopwords')
 from nltk.corpus import stopwords
@@ -12,7 +15,7 @@ RESOURCE_PATH = {
     'TAG_CLASSIFIER': 'tag_classifier.pkl',
     'TFIDF_VECTORIZER': 'tfidf_vectorizer.pkl',
     'THREAD_EMBEDDINGS_FOLDER': 'thread_embeddings_by_tags',
-    'WORD_EMBEDDINGS': 'word_embeddings.tsv',
+    'WORD_EMBEDDINGS': 'starspace_embedding.tsv',
 }
 
 
@@ -46,30 +49,35 @@ def load_embeddings(embeddings_path):
     # Note that here you also need to know the dimension of the loaded embeddings.
     # When you load the embeddings, use numpy.float32 type as dtype
     embeddings = {}
-    for embedding in open(embeddings_path):
-        word = embedding[0]
-        embed = np.array(embedding[1:]).astype(np.float32)
-        embeddings[word] = embed
-    embeddings_dim = len(embedding)
-    
-    return embeddings, embeddings_dim
-    
+    with open(embeddings_path, newline='') as embedding_file:
+        reader = csv.reader(embedding_file, delimiter='\t')
+        for line in reader:
+            word = line[0]
+            embedding = np.array(line[1:]).astype(np.float32)
+            embeddings[word] = embedding
+        dim = len(line) - 1
+    return embeddings, dim
+    '''embeddings = defaultdict(float)
+    for line in open(embeddings_path, encoding='utf-8'):
+        line_parts = line.split('\t')
+        #print(line_parts)
+        word = line_parts[0]
+        embedding = np.array(line_parts[1:]).astype(np.float32)
+        embeddings[word] = embedding
+    dim = len(line) - 1
+    return embeddings, dim
+    '''
  
 
 def question_to_vec(question, embeddings, dim):
     """Transforms a string to an embedding by averaging word embeddings."""
     
     # Hint: you have already implemented exactly this function in the 3rd assignment.
-
-    ########################
-    #### YOUR CODE HERE ####
-    ########################
-
     words_embeddings = [embeddings[word] for word in question.split() if word in embeddings]
     if words_embeddings:
         return np.mean(np.array(words_embeddings), axis=0)
     else:
-        return np.zeros((1, dim))
+        return np.zeros(dim)
 
 
 def unpickle_file(filename):
