@@ -2,6 +2,7 @@ import os
 from sklearn.metrics.pairwise import pairwise_distances_argmin
 
 from chatterbot import ChatBot
+from chatterbot.trainers import ListTrainer
 from utils import *
 
 
@@ -47,6 +48,10 @@ class DialogueManager(object):
         self.tag_classifier = unpickle_file(paths['TAG_CLASSIFIER'])
         self.thread_ranker = ThreadRanker(paths)
 
+        self.create_chitchat_bot()
+
+
+
     def create_chitchat_bot(self):
         """Initializes self.chitchat_bot with some conversational model."""
 
@@ -85,17 +90,20 @@ class DialogueManager(object):
         # Don't forget to prepare question and calculate features for the question.
         
         prepared_question = text_prepare(question)
+        print(prepared_question)
         features = self.tfidf_vectorizer.transform([prepared_question])
-        intent = self.intent_recognizer.predict(feature)[0]
+        intent = self.intent_recognizer.predict(features)[0]
 
         # Chit-chat part:   
         if intent == 'dialogue':
+            print(intent)
             # Pass question to chitchat_bot to generate a response.       
             response = self.chatbot.get_response(prepared_question)
             return response
         
         # Goal-oriented part:
-        else:        
+        else:
+            print(intent)
             # Pass features to tag_classifier to get predictions.
             tag = self.tag_classifier.predict(features)[0]
             
