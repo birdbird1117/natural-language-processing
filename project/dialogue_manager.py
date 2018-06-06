@@ -65,23 +65,7 @@ class DialogueManager(object):
             trainer='chatterbot.trainers.ChatterBotCorpusTrainer'
         )
         self.chatbot.train("chatterbot.corpus.english")
-        self.chatbot.set_trainer(ListTrainer)
-        self.chatbot.train([
-            "Hey",
-            "Hello. How do you do?",
-        ])
-        self.chatbot.train([
-            "How are you doing?",
-            "I am good!",
-        ])
-        self.chatbot.train([
-            "What's your hobby?",
-            "I love soccer.",
-        ])
-        self.chatbot.train([
-            "What is AI?",
-            "Me",
-        ])
+
        
     def generate_answer(self, question):
         """Combines stackoverflow and chitchat parts using intent recognition."""
